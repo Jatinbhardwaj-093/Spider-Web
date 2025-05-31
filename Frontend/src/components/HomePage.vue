@@ -64,19 +64,39 @@
             <!-- Floating particles positioned along wave paths -->
             <!-- Primary wave particles: Following main sine wave curve -->
             <circle class="sine-particle particle-1" cx="50" cy="50" r="2" />
-            <circle class="sine-particle particle-2" cx="150" cy="150" r="1.8" />
+            <circle
+              class="sine-particle particle-2"
+              cx="150"
+              cy="150"
+              r="1.8"
+            />
             <circle class="sine-particle particle-3" cx="250" cy="50" r="1.9" />
-            
+
             <!-- Secondary wave particles: Following inverted sine wave -->
             <circle class="sine-particle particle-4" cx="50" cy="150" r="1.7" />
             <circle class="sine-particle particle-5" cx="150" cy="50" r="1.6" />
-            <circle class="sine-particle particle-6" cx="250" cy="150" r="1.8" />
-            
+            <circle
+              class="sine-particle particle-6"
+              cx="250"
+              cy="150"
+              r="1.8"
+            />
+
             <!-- Tertiary wave particles: Following higher frequency wave -->
             <circle class="sine-particle particle-7" cx="75" cy="125" r="1.4" />
             <circle class="sine-particle particle-8" cx="175" cy="75" r="1.5" />
-            <circle class="sine-particle particle-9" cx="275" cy="125" r="1.3" />
-            <circle class="sine-particle particle-10" cx="350" cy="100" r="1.6" />
+            <circle
+              class="sine-particle particle-9"
+              cx="275"
+              cy="125"
+              r="1.3"
+            />
+            <circle
+              class="sine-particle particle-10"
+              cx="350"
+              cy="100"
+              r="1.6"
+            />
           </svg>
         </div>
       </div>
