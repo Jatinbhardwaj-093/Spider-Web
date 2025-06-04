@@ -2,11 +2,10 @@
 
 ## Images
 
-### 1. Sloth Lying
-- **Source**: Adobe Firefly
-- **Prompt**: "monochrome sloth, lying on tree"
-- **File**: `Frontend/src/resources/images/sloth_lying.png`
-- **Usage**: Image asset for the project
+### 1. Spider Web Logo
+- **Source**: Design.com
+- **File**: `Frontend/src/resources/images/spiderWeb_logo.png`
+- **Usage**: Main logo for the spider web themed application
 
 ## SVG
 

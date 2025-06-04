@@ -3,8 +3,8 @@
     <!-- Logo in top left -->
     <div class="title-container">
       <img
-        src="../resources/images/sloth_logo.png"
-        alt="Sloth Reply Logo"
+        src="../resources/images/spiderWeb_logo.png"
+        alt="Spider Web Reply Logo"
         class="logo-image"
       />
     </div>
@@ -20,84 +20,9 @@
         <!-- Energy field background -->
         <div class="energy-field"></div>
 
-        <!-- Sine Wave Visualization -->
-        <div class="sine-wave-container">
-          <svg
-            class="sine-wave-svg"
-            viewBox="0 0 400 200"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <!-- Permanent thin outlines -->
-            <path
-              class="sine-outline primary-outline"
-              d="M0,100 Q50,50 100,100 T200,100 T300,100 T400,100"
-              fill="none"
-            />
-            <path
-              class="sine-outline secondary-outline"
-              d="M0,100 Q50,150 100,100 T200,100 T300,100 T400,100"
-              fill="none"
-            />
-            <path
-              class="sine-outline tertiary-outline"
-              d="M0,100 Q25,75 50,100 T100,100 T150,100 T200,100 T250,100 T300,100 T350,100 T400,100"
-              fill="none"
-            />
-
-            <!-- Thick flowing waves -->
-            <path
-              class="sine-wave-path primary-wave"
-              d="M0,100 Q50,50 100,100 T200,100 T300,100 T400,100"
-              fill="none"
-            />
-            <path
-              class="sine-wave-path secondary-wave"
-              d="M0,100 Q50,150 100,100 T200,100 T300,100 T400,100"
-              fill="none"
-            />
-            <path
-              class="sine-wave-path tertiary-wave"
-              d="M0,100 Q25,75 50,100 T100,100 T150,100 T200,100 T250,100 T300,100 T350,100 T400,100"
-              fill="none"
-            />
-
-            <!-- Floating particles positioned along wave paths -->
-            <!-- Primary wave particles: Following main sine wave curve -->
-            <circle class="sine-particle particle-1" cx="50" cy="50" r="2" />
-            <circle
-              class="sine-particle particle-2"
-              cx="150"
-              cy="150"
-              r="1.8"
-            />
-            <circle class="sine-particle particle-3" cx="250" cy="50" r="1.9" />
-
-            <!-- Secondary wave particles: Following inverted sine wave -->
-            <circle class="sine-particle particle-4" cx="50" cy="150" r="1.7" />
-            <circle class="sine-particle particle-5" cx="150" cy="50" r="1.6" />
-            <circle
-              class="sine-particle particle-6"
-              cx="250"
-              cy="150"
-              r="1.8"
-            />
-
-            <!-- Tertiary wave particles: Following higher frequency wave -->
-            <circle class="sine-particle particle-7" cx="75" cy="125" r="1.4" />
-            <circle class="sine-particle particle-8" cx="175" cy="75" r="1.5" />
-            <circle
-              class="sine-particle particle-9"
-              cx="275"
-              cy="125"
-              r="1.3"
-            />
-            <circle
-              class="sine-particle particle-10"
-              cx="350"
-              cy="100"
-              r="1.6"
-            />
-          </svg>
+        <!-- Dynamic Spider Web Canvas -->
+        <div class="spider-web-container">
+          <canvas ref="spiderWebCanvas" class="spider-web-canvas"></canvas>
         </div>
       </div>
     </div>
@@ -145,7 +70,21 @@ export default {
       userQuestion: "",
       isLoading: false,
       isEnergized: false,
+      spiderWebController: null,
+      resizeObserver: null,
     };
+  },
+  mounted() {
+    this.initSpiderWeb();
+    this.setupResizeObserver();
+  },
+  beforeUnmount() {
+    if (this.spiderWebController) {
+      this.spiderWebController.destroy();
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   },
   methods: {
     async submitQuestion() {
@@ -175,9 +114,287 @@ export default {
     },
     onAtomHover() {
       this.isEnergized = true;
+      // Trigger web vibration on hover
+      if (this.spiderWebController) {
+        this.spiderWebController.triggerVibration();
+      }
     },
     onAtomLeave() {
       this.isEnergized = false;
+    },
+
+    // Spider Web Controller Implementation
+    initSpiderWeb() {
+      const canvas = this.$refs.spiderWebCanvas;
+      if (!canvas) return;
+
+      this.spiderWebController = new this.SpiderWebController(canvas, this);
+      this.spiderWebController.init();
+    },
+
+    setupResizeObserver() {
+      if (typeof ResizeObserver !== "undefined") {
+        this.resizeObserver = new ResizeObserver(() => {
+          if (this.spiderWebController) {
+            this.spiderWebController.resize();
+          }
+        });
+
+        const container = this.$refs.spiderWebCanvas?.parentElement;
+        if (container) {
+          this.resizeObserver.observe(container);
+        }
+      }
+    },
+
+    // Color utilities adapted from original code
+    createColor(min = 0) {
+      // Create crimson-themed spider web colors with more variation
+      const baseColors = [
+        { r: 220, g: 20, b: 60 }, // Crimson
+        { r: 255, g: 69, b: 0 }, // Orange Red
+        { r: 139, g: 0, b: 0 }, // Dark Red
+        { r: 255, g: 20, b: 147 }, // Deep Pink
+        { r: 178, g: 34, b: 34 }, // Fire Brick
+      ];
+
+      const color = baseColors[Math.floor(Math.random() * baseColors.length)];
+      const variance = 30;
+
+      const r = Math.max(
+        min,
+        color.r + Math.floor((Math.random() - 0.5) * variance)
+      );
+      const g = Math.max(
+        min,
+        color.g + Math.floor((Math.random() - 0.5) * variance)
+      );
+      const b = Math.max(
+        min,
+        color.b + Math.floor((Math.random() - 0.5) * variance)
+      );
+
+      return {
+        r: Math.min(255, r),
+        g: Math.min(255, g),
+        b: Math.min(255, b),
+        style: `rgba(${Math.min(255, r)}, ${Math.min(255, g)}, ${Math.min(
+          255,
+          b
+        )}, 0.8)`,
+      };
+    },
+
+    d2Dist(p1, p2) {
+      const dx = p1.px - p2.px;
+      const dy = p1.py - p2.py;
+      return Math.sqrt(dx * dx + dy * dy);
+    },
+
+    // Spider Web Controller Class Definition
+    SpiderWebController: class SpiderWebController {
+      constructor(canvas, component) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.component = component;
+        this.objectsToDraw = [];
+        this.lastRequestId = null;
+        this.evolutionTimer = null;
+        this.isDestroyed = false;
+      }
+
+      drawCurve(control, p1, p2, radius) {
+        if (this.isDestroyed) return;
+        const ctx = this.ctx;
+        ctx.beginPath();
+        ctx.moveTo(p1.px, p1.py);
+        ctx.arcTo(control.px, control.py, p2.px, p2.py, radius);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.color.style;
+        ctx.stroke();
+      }
+
+      drawLine(control, p) {
+        if (this.isDestroyed) return;
+        const ctx = this.ctx;
+        ctx.beginPath();
+        ctx.moveTo(control.px, control.py);
+        ctx.lineTo(p.px, p.py);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.color.style;
+        ctx.stroke();
+      }
+
+      drawNext(part) {
+        if (this.isDestroyed) return;
+        part.func.call(this, part.control, part.p1, part.p2, part.radius);
+      }
+
+      drawPart() {
+        if (this.isDestroyed) return;
+
+        if (this.objectsToDraw.length > 0) {
+          this.lastRequestId = requestAnimationFrame(() => {
+            if (!this.isDestroyed) {
+              this.drawNext(this.objectsToDraw.shift());
+              this.drawPart();
+              // Enable subtle color animation for dynamic web
+              if (Math.random() > 0.95) {
+                this.color = this.component.createColor(64);
+              }
+            }
+          });
+        }
+      }
+
+      shuffleArray(target) {
+        const auxArray = [];
+        while (target.length > 0) {
+          auxArray.push(target.shift());
+        }
+
+        while (auxArray.length > 0) {
+          const n = Math.floor(Math.random() * auxArray.length);
+          for (let i = 0; i < n; i++) {
+            auxArray.push(auxArray.shift());
+          }
+          const x = auxArray.shift();
+          // Create a slightly flawed/broken web (remove ~10% of strands randomly)
+          if (Math.random() * 100 >= 10) {
+            target.push(x);
+          }
+        }
+      }
+
+      drawWebByParts() {
+        if (this.isDestroyed) return;
+
+        this.ctx.clearRect(0, 0, this.screenWidth, this.screenHeight);
+        const controlPoint = {
+          px: this.screenWidth / 2,
+          py: this.screenHeight / 2,
+        };
+        const outerRadius =
+          Math.min(this.screenWidth / 2, this.screenHeight / 2) - 20;
+
+        const nLines = 18; // Original number of radial lines
+        const deltaAngle = 360 / nLines;
+        const degree = Math.PI / 180;
+
+        const points = [];
+        for (let i = 0; i < nLines; i++) {
+          points.push({
+            px:
+              controlPoint.px + outerRadius * Math.cos(i * deltaAngle * degree),
+            py:
+              controlPoint.py + outerRadius * Math.sin(i * deltaAngle * degree),
+          });
+        }
+
+        const linesToDraw = [];
+        for (let i = 0; i < points.length; i++) {
+          linesToDraw.push({
+            control: controlPoint,
+            p1: points[i],
+            func: this.drawLine,
+          });
+        }
+
+        // Shuffle the order of lines being drawn for more natural appearance
+        this.shuffleArray(linesToDraw);
+
+        const nArcs = 18; // Original number of concentric arcs
+        const dist = this.component.d2Dist(points[0], points[1]) / 2;
+        const deltaRadius = dist / nArcs;
+
+        const arcsToDraw = [];
+        for (let j = 1; j <= nArcs; j++) {
+          for (let i = 0; i < points.length; i++) {
+            const p1 = points[i % points.length];
+            const p2 = points[(i + 1) % points.length];
+
+            arcsToDraw.push({
+              control: controlPoint,
+              p1: p1,
+              p2: p2,
+              radius: j * deltaRadius,
+              func: this.drawCurve,
+            });
+          }
+        }
+
+        // Shuffle the order of arcs being drawn for more natural appearance
+        this.shuffleArray(arcsToDraw);
+
+        this.objectsToDraw = [];
+        while (linesToDraw.length > 0) {
+          this.objectsToDraw.push(linesToDraw.shift());
+        }
+
+        while (arcsToDraw.length > 0) {
+          this.objectsToDraw.push(arcsToDraw.shift());
+        }
+
+        this.drawPart();
+      }
+
+      resize() {
+        if (this.isDestroyed) return;
+
+        const container = this.canvas.parentElement;
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        this.screenWidth = rect.width;
+        this.screenHeight = rect.height;
+
+        this.canvas.width = this.screenWidth;
+        this.canvas.height = this.screenHeight;
+
+        if (this.lastRequestId) {
+          cancelAnimationFrame(this.lastRequestId);
+        }
+
+        this.drawWebByParts();
+      }
+
+      init() {
+        this.color = this.component.createColor(64);
+        this.resize();
+
+        // Set up periodic redraw for evolving web animation
+        this.startEvolutionTimer();
+      }
+
+      startEvolutionTimer() {
+        if (this.isDestroyed) return;
+
+        // Redraw the web every 15-25 seconds with variations
+        const nextRedraw = 15000 + Math.random() * 10000;
+        this.evolutionTimer = setTimeout(() => {
+          if (!this.isDestroyed) {
+            this.drawWebByParts();
+            this.startEvolutionTimer();
+          }
+        }, nextRedraw);
+      }
+
+      triggerVibration() {
+        if (this.isDestroyed) return;
+
+        // Quick redraw with slight variations to simulate web vibration
+        this.drawWebByParts();
+      }
+
+      destroy() {
+        this.isDestroyed = true;
+        if (this.lastRequestId) {
+          cancelAnimationFrame(this.lastRequestId);
+        }
+        if (this.evolutionTimer) {
+          clearTimeout(this.evolutionTimer);
+        }
+      }
     },
   },
 };
@@ -295,166 +512,31 @@ export default {
   animation: energyPulse 4s ease-in-out infinite;
 }
 
-/* Sine Wave Visualization */
-.sine-wave-container {
+/* Spider Web Visualization */
+.spider-web-container {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(20deg);
   z-index: 2;
   perspective: 1000px;
 }
 
-.sine-wave-svg {
-  width: 500px;
-  height: 250px;
+.spider-web-canvas {
+  width: 400px;
+  height: 400px;
   filter: drop-shadow(0 0 20px rgba(220, 20, 60, 0.3));
+  border-radius: 50%;
+  animation: subtleRotation 120s linear infinite;
 }
 
-/* Permanent thin outlines */
-.sine-outline {
-  stroke-width: 0.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-}
-
-.primary-outline {
-  stroke: rgba(220, 20, 60, 0.3);
-}
-
-.secondary-outline {
-  stroke: rgba(180, 15, 45, 0.3);
-}
-
-.tertiary-outline {
-  stroke: rgba(128, 128, 128, 0.3);
-}
-
-/* Thick flowing waves */
-.sine-wave-path {
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-  animation: sineFlow 6s ease-in-out infinite;
-}
-
-.primary-wave {
-  stroke: rgba(220, 20, 60, 0.9);
-  stroke-width: 5;
-  animation-delay: 0s;
-  filter: drop-shadow(0 0 6px rgba(220, 20, 60, 0.4));
-}
-
-.secondary-wave {
-  stroke: rgba(255, 140, 0, 0.8);
-  stroke-width: 4;
-  animation-delay: 2s;
-  filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.4));
-}
-
-.tertiary-wave {
-  stroke: rgba(128, 128, 128, 0.8);
-  stroke-width: 3;
-  animation-delay: 4s;
-  filter: drop-shadow(0 0 4px rgba(128, 128, 128, 0.3));
-}
-
-.sine-particle {
-  animation: particleFloat 3s ease-in-out infinite;
-}
-
-/* Primary wave particles (red) */
-.particle-1 {
-  fill: rgba(220, 20, 60, 0.9);
-  animation-delay: 0s;
-  filter: drop-shadow(0 0 4px rgba(220, 20, 60, 0.6));
-}
-
-.particle-2 {
-  fill: rgba(220, 20, 60, 0.8);
-  animation-delay: 0.8s;
-  filter: drop-shadow(0 0 3px rgba(220, 20, 60, 0.5));
-}
-
-.particle-3 {
-  fill: rgba(220, 20, 60, 0.85);
-  animation-delay: 1.6s;
-  filter: drop-shadow(0 0 4px rgba(220, 20, 60, 0.5));
-}
-
-/* Secondary wave particles (orange) */
-.particle-4 {
-  fill: rgba(255, 140, 0, 0.9);
-  animation-delay: 0.5s;
-  filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.6));
-}
-
-.particle-5 {
-  fill: rgba(255, 140, 0, 0.8);
-  animation-delay: 1.3s;
-  filter: drop-shadow(0 0 3px rgba(255, 140, 0, 0.5));
-}
-
-.particle-6 {
-  fill: rgba(255, 140, 0, 0.7);
-  animation-delay: 2.1s;
-  filter: drop-shadow(0 0 3px rgba(255, 140, 0, 0.4));
-}
-
-/* Tertiary wave particles (gray) */
-.particle-7 {
-  fill: rgba(128, 128, 128, 0.8);
-  animation-delay: 0.3s;
-  filter: drop-shadow(0 0 3px rgba(128, 128, 128, 0.5));
-}
-
-.particle-8 {
-  fill: rgba(128, 128, 128, 0.7);
-  animation-delay: 1.1s;
-  filter: drop-shadow(0 0 2px rgba(128, 128, 128, 0.4));
-}
-
-.particle-9 {
-  fill: rgba(128, 128, 128, 0.75);
-  animation-delay: 1.9s;
-  filter: drop-shadow(0 0 3px rgba(128, 128, 128, 0.4));
-}
-
-.particle-10 {
-  fill: rgba(128, 128, 128, 0.6);
-  animation-delay: 2.7s;
-  filter: drop-shadow(0 0 2px rgba(128, 128, 128, 0.3));
-}
-
-.particle-7 {
-  fill: rgba(139, 0, 0, 0.6);
-  animation-delay: 3s;
-  filter: drop-shadow(0 0 2px rgba(139, 0, 0, 0.3));
-}
-
-.particle-8 {
-  fill: rgba(139, 0, 0, 0.5);
-  animation-delay: 3.5s;
-  filter: drop-shadow(0 0 2px rgba(139, 0, 0, 0.3));
-}
-
-.equation-display {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-}
-
-.equation-text {
-  font-family: "Courier New", monospace;
-  font-size: 18px;
-  color: rgba(220, 20, 60, 0.9);
-  text-shadow: 0 0 10px rgba(220, 20, 60, 0.5);
-  font-weight: bold;
-  letter-spacing: 2px;
+@keyframes subtleRotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Enhanced animations */
@@ -467,30 +549,6 @@ export default {
   50% {
     transform: scale(1.1);
     opacity: 0.6;
-  }
-}
-
-/* Sine wave animations */
-@keyframes sineFlow {
-  0% {
-    stroke-dasharray: 50 50;
-    stroke-dashoffset: 0;
-  }
-  100% {
-    stroke-dasharray: 50 50;
-    stroke-dashoffset: -100;
-  }
-}
-
-@keyframes particleFloat {
-  0%,
-  100% {
-    transform: translateY(0px) scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: translateY(-15px) scale(1.2);
-    opacity: 1;
   }
 }
 
@@ -598,13 +656,9 @@ export default {
     height: 220px;
   }
 
-  .sine-wave-svg {
-    width: 400px;
-    height: 200px;
-  }
-
-  .equation-text {
-    font-size: 16px;
+  .spider-web-canvas {
+    width: 350px;
+    height: 350px;
   }
 
   .input-container {
@@ -653,13 +707,9 @@ export default {
     height: 180px;
   }
 
-  .sine-wave-svg {
-    width: 350px;
-    height: 175px;
-  }
-
-  .equation-text {
-    font-size: 15px;
+  .spider-web-canvas {
+    width: 320px;
+    height: 320px;
   }
 
   .input-container {
@@ -709,13 +759,9 @@ export default {
     height: 160px;
   }
 
-  .sine-wave-svg {
-    width: 300px;
-    height: 150px;
-  }
-
-  .equation-text {
-    font-size: 14px;
+  .spider-web-canvas {
+    width: 280px;
+    height: 280px;
   }
 
   .input-wrapper {
@@ -761,13 +807,9 @@ export default {
     height: 140px;
   }
 
-  .sine-wave-svg {
-    width: 250px;
-    height: 125px;
-  }
-
-  .equation-text {
-    font-size: 12px;
+  .spider-web-canvas {
+    width: 240px;
+    height: 240px;
   }
 
   .input-wrapper {
@@ -813,13 +855,9 @@ export default {
     height: 320px;
   }
 
-  .sine-wave-svg {
-    width: 600px;
-    height: 300px;
-  }
-
-  .equation-text {
-    font-size: 20px;
+  .spider-web-canvas {
+    width: 480px;
+    height: 480px;
   }
 
   .input-container {
