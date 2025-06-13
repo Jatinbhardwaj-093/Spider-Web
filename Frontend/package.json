@@ -1,7 +1,7 @@
 {
-  "name": "tds-project-frontend",
+  "name": "spider-web-frontend",
   "version": "1.0.0",
-  "description": "Vue.js frontend for TDS Project",
+  "description": "Vue.js frontend for Spider Web RAG Application",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

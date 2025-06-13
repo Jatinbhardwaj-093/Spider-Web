@@ -45,6 +45,20 @@ ENV/
 env.bak/
 venv.bak/
 .venv/
+*.pyc
+*.pyo
+
+# Machine Learning / AI models
+*.pkl
+*.model
+*.h5
+*.ckpt
+models/
+checkpoints/
+
+# Vector embeddings cache
+embeddings_cache/
+*.embedding
 
 # Python distribution / packaging
 .Python
@@ -112,6 +126,27 @@ config.local.json
 # Logs
 logs
 *.log
+debug.log
+error.log
+access.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+dump.sql
+
+# Alembic migration files
+alembic/
+alembic.ini
+
+# Development and testing files
+test_*
+*_test.py
+*_clean.vue
+*_new.vue
+*_backup.*
+debug_*
 
 # Runtime data
 pids
@@ -161,3 +196,50 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+# RAG Application specific
+# OpenAI API keys and secrets
+openai_key.txt
+api_keys.json
+
+# Vector database files
+pgvector_data/
+vectors/
+
+# Sentence transformer models cache
+.cache/
+sentence_transformers/
+
+# Development scripts (add specific ones as needed)
+scripts/test_*.py
+scripts/debug_*.py
+scripts/health_check.py
+scripts/start.sh
+
+# Temporary data files
+temp_data/
+test_data/
+sample_data/
+
+# IDE specific
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+*.7z
