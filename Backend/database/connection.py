@@ -40,6 +40,10 @@ class DatabaseConfig:
     @property
     def database_url(self) -> str:
         """Construct database URL."""
+        # Use DATABASE_URL if provided, otherwise construct from components
+        database_url = os.getenv("DATABASE_URL")
+        if database_url:
+            return database_url
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 # Global configuration instance

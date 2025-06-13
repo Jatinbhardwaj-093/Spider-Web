@@ -476,7 +476,7 @@ def _generate_answer_from_results(question: str, search_results: List[dict]) -> 
             relevant_sentence = sentences[0] if sentences else post_content[:200]
             return f"Based on forum discussions: {relevant_sentence.strip()}..."
         else:
-            return f"Based on forum discussions: {post_content}"
+            return post_content
     
     return "I found some related discussions but couldn't generate a specific answer. Please check the linked forum posts for more details."
 
